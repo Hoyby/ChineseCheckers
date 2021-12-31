@@ -1,7 +1,7 @@
 import numpy as np
 
 def createBoard():
-    board = np.zeros((17, 25))
+    board = np.zeros((17, 25), dtype=int)
 
     board[:][:] = -1
 

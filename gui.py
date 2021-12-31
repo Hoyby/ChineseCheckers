@@ -1,5 +1,4 @@
 import pygame as pg
-from pygame import surface
 
 
 # color dictionary, represents white, red and blue
@@ -30,6 +29,7 @@ WINDOW_WIDTH = (MARGIN_DISTANCE * 2) + \
 WINDOW_HEIGHT = (MARGIN_DISTANCE * 2) + \
     (CIRCLE_DIAMETER * 17) + (V_SPACING * 16)
 
+circlePos = dict()
 
 def initBoard():
     pg.init()
@@ -50,49 +50,52 @@ def drawBoard(board, display_surface):
         x_coord_short = int(MARGIN_DISTANCE +
                             CIRCLE_DIAMETER + (H_SPACING / 2))
 
-        for circle_in_a_row in range(0, 13):
+        for boardRow in range(0, 13):
             if row % 2 == 0:
 
-                board_value = board[row][circle_in_a_row * 2]
+                board_value = board[row][boardRow * 2]
                 color_circle(board_value, display_surface,
                              x_coord_long, y_coord)
+                circlePos[(row, boardRow * 2)] = (x_coord_long, y_coord)
 
                 x_coord_long = x_coord_long + CIRCLE_DIAMETER + H_SPACING
 
-            elif row % 2 != 0 and circle_in_a_row != 12:
+            elif row % 2 != 0 and boardRow != 12:
 
-                board_value = board[row][circle_in_a_row * 2 + 1]
+                board_value = board[row][boardRow * 2 + 1]
                 color_circle(board_value, display_surface,
                              x_coord_short, y_coord)
+                circlePos[(row, boardRow * 2 + 1)] = (x_coord_short, y_coord)
 
                 x_coord_short = x_coord_short + CIRCLE_DIAMETER + H_SPACING
 
         y_coord = y_coord + CIRCLE_DIAMETER + V_SPACING
 
 
-def color_circle(board_value, surface, xCoord, yCoord):
+def color_circle(boardValue, surface, xCoord, yCoord):
 
-    if board_value == -1:
-        pg.draw.circle(surface, color["bg"],
+    match boardValue:
+        case -1:
+            pg.draw.circle(surface, color["bg"],
                        (xCoord, yCoord), CIRCLE_RADIUS, 0)
-    if board_value == 0:
-        pg.draw.circle(surface, color["empty"],
-                       (xCoord, yCoord), CIRCLE_RADIUS, 0)
-    if board_value == 1:
-        pg.draw.circle(surface, color["player1"],
-                       (xCoord, yCoord), CIRCLE_RADIUS, 0)
-    if board_value == 2:
-        pg.draw.circle(surface, color["player2"],
-                       (xCoord, yCoord), CIRCLE_RADIUS, 0)
-    if board_value == 3:
-        pg.draw.circle(surface, color["player3"],
-                       (xCoord, yCoord), CIRCLE_RADIUS, 0)
-    if board_value == 4:
-        pg.draw.circle(surface, color["player4"],
-                       (xCoord, yCoord), CIRCLE_RADIUS, 0)
-    if board_value == 5:
-        pg.draw.circle(surface, color["player5"],
-                       (xCoord, yCoord), CIRCLE_RADIUS, 0)
-    if board_value == 6:
-        pg.draw.circle(surface, color["player6"],
-                       (xCoord, yCoord), CIRCLE_RADIUS, 0)
+        case 0:
+            pg.draw.circle(surface, color["empty"],
+                        (xCoord, yCoord), CIRCLE_RADIUS, 0)
+        case 1:
+            pg.draw.circle(surface, color["player1"],
+                        (xCoord, yCoord), CIRCLE_RADIUS, 0)
+        case 2:
+            pg.draw.circle(surface, color["player2"],
+                        (xCoord, yCoord), CIRCLE_RADIUS, 0)
+        case 3:
+            pg.draw.circle(surface, color["player3"],
+                        (xCoord, yCoord), CIRCLE_RADIUS, 0)
+        case 4:
+            pg.draw.circle(surface, color["player4"],
+                        (xCoord, yCoord), CIRCLE_RADIUS, 0)
+        case 5:
+            pg.draw.circle(surface, color["player5"],
+                        (xCoord, yCoord), CIRCLE_RADIUS, 0)
+        case 6:
+            pg.draw.circle(surface, color["player6"],
+                        (xCoord, yCoord), CIRCLE_RADIUS, 0)
