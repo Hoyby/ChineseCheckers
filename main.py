@@ -1,14 +1,14 @@
 from gui import *
-from board import *
-from engine import *
 from math import sqrt
+from board import *
+
+
+board = Board()
 
 display_surface = initBoard()
-board = createBoard()
-
-drawBoard(board, display_surface)
-selectedPiece = None
+drawBoard(board.array, display_surface)
 pg.display.update()
+
 
 while True:
         
@@ -28,15 +28,14 @@ while True:
                     x = pg.mouse.get_pos()[0]
                     y = pg.mouse.get_pos()[1]
 
-                    if selectedPiece == None:
+                    if board.selection.selected == False:
                         # If no piece is selected
                         for pieceCoord, pixedCoord in circlePos.items():
                             # Use mouse pos to find piece clicked
                             if sqrt((x - pixedCoord[0]) ** 2 + (y - pixedCoord[1]) ** 2) < CIRCLE_RADIUS:
-                                if board[pieceCoord[0]][pieceCoord[1]] != 0:
-                                    selectedPiece = pieceCoord
-                                    print(selectedPiece, "selected")
-                                    #TODO - highlight selected piece
+                                if board.array[pieceCoord[0]][pieceCoord[1]] != 0:
+                                    board.selectPiece(pieceCoord)
+                                    print(board.selection.coord, "selected")
                                 else:
                                     print("No piece selected")
                     else:
@@ -46,17 +45,14 @@ while True:
 
                                 # Move piece
                                 try:
-                                    doMove(selectedPiece, pieceCoord, board, board[selectedPiece[0]][selectedPiece[1]])
-                                
-                                    # Reset selected piece
-                                    selectedPiece = None
-
-                                    # Update board
-                                    drawBoard(board, display_surface)
-                                    pg.display.update()
+                                    board.doMove(pieceCoord)
+                                    
                                 except Exception as e:
                                     if e.args[0] == "Error - Invalid move, same position":
-                                        print(selectedPiece, "deselected")
-                                        selectedPiece = None
+                                        print(board.selection.coord, "deselected")
+                                        board.deselectPiece()
                                     else:
                                         print(e.args[0])
+
+            drawBoard(board.array, display_surface)
+            pg.display.update()

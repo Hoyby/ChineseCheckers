@@ -5,7 +5,7 @@ import pygame as pg
 color = {
     "bg": (242, 213, 171),
     "empty": (213, 192, 155),
-    "empty": (100, 100, 100),
+    "selected": (100, 100, 100),
     "player1": (0, 0, 0),  # black
     "player2": (255, 255, 255),  # white
     "player3": (255, 0, 0),  # red
