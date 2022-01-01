@@ -5,6 +5,7 @@ import pygame as pg
 color = {
     "bg": (242, 213, 171),
     "empty": (213, 192, 155),
+    "empty": (100, 100, 100),
     "player1": (0, 0, 0),  # black
     "player2": (255, 255, 255),  # white
     "player3": (255, 0, 0),  # red
@@ -98,4 +99,7 @@ def color_circle(boardValue, surface, xCoord, yCoord):
                         (xCoord, yCoord), CIRCLE_RADIUS, 0)
         case 6:
             pg.draw.circle(surface, color["player6"],
+                        (xCoord, yCoord), CIRCLE_RADIUS, 0)
+        case 10:
+            pg.draw.circle(surface, color["selected"],
                         (xCoord, yCoord), CIRCLE_RADIUS, 0)

@@ -1,26 +1,27 @@
-
-def validMove(fromX, fromY, toX, toY, board):
-    if fromX == toX and fromY == toY:
-        print("Error - 1")
-        return False
-    if board[fromX][fromY] == 0:
-        print("Error - 2")
-        return False
-    if board[toX][toY] != 0:
-        print("Error - 3")
-        return False
-    if abs(fromX - toX) > 1 or abs(fromY - toY) > 2:
-        print("Error - 4")
-        return False
-    if abs(fromX - toX) == 2 and abs(fromY - toY) != 0:
-        print("Error - 5")
-        return False
+def validMove(fromCoord, toCoord, board):
+    if fromCoord[0] == toCoord[0] and fromCoord[1] == toCoord[1]:
+        raise Exception("Error - Invalid move, same position")
+    if board[fromCoord[0]][fromCoord[1]] == 0:
+        raise Exception("Error - Invalid move, no piece selected")
+    if board[toCoord[0]][toCoord[1]] != 0:
+        raise Exception("Error - Invalid move, destination occupied")
+    if abs(fromCoord[0] - toCoord[0]) > 1 or abs(fromCoord[1] - toCoord[1]) > 2:
+        raise Exception("Error - Invalid move, too far")
+    if abs(fromCoord[0] - toCoord[0]) == 2 and abs(fromCoord[1] - toCoord[1]) != 0:
+        raise Exception("Error - Invalid move, not diagonal")
     return True
 
-def doMove(fromX, fromY, toX, toY, board, player):
-    if validMove(fromX, fromY, toX, toY, board):
-        board[toX][toY] = player
-        board[fromX][fromY] = 0
-        return board
+def doMove(fromCoord, toCoord, board, player):
+    try: 
+        validMove(fromCoord, toCoord, board)
+        board[toCoord] = player
+        board[fromCoord] = 0
+        print("Move from", fromCoord, "to", toCoord, "successful")
+    except Exception as e:
+        raise e
+
+def selectPiece(fromCoord, board):
+    if board[fromCoord[0]][fromCoord[1]] != 0:
+        board[fromCoord[0]][fromCoord[1]] = 10
     else:
-        return board
+        raise Exception("Error - No piece selected")

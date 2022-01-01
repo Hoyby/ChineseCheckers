@@ -7,33 +7,56 @@ display_surface = initBoard()
 board = createBoard()
 
 drawBoard(board, display_surface)
-firstClick = None
+selectedPiece = None
+pg.display.update()
 
 while True:
-
-        # board = doMove(11, 3, 12, 4, board, 1)
-
-        x = pg.mouse.get_pos()[0]
-        y = pg.mouse.get_pos()[1]
+        
 
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 pg.quit()
                 break
+
+            # If mousebutton is pressed
             if event.type == pg.MOUSEBUTTONDOWN:
-                if event.button == 1 and firstClick == None:
-                    for key, val in circlePos.items():
-                        if sqrt((x - val[0]) ** 2 + (y - val[1]) ** 2) < CIRCLE_RADIUS:
-                            print(x, y)
-                            print(circlePos[(key[0], key[1])])
-                            firstClick = key
-                            print('cord: ', firstClick, ' - Value: ', board[firstClick[0]][firstClick[1]])
-                    print("Left mouse button pressed.")
-                elif event.button == 1 and firstClick != None:
-                    for key, val in circlePos.items():
-                        if sqrt((x - val[0]) ** 2 + (y - val[1]) ** 2) < CIRCLE_RADIUS:
-                            print('move', firstClick, key)
-                            board = doMove(firstClick[0], firstClick[1], key[0], key[1], board, board[firstClick[0]][firstClick[1]])
-                            firstClick = None
-                            drawBoard(board, display_surface)
-        pg.display.update()
+                
+                # If first click
+                if event.button == 1:
+
+                    # Get mouse position
+                    x = pg.mouse.get_pos()[0]
+                    y = pg.mouse.get_pos()[1]
+
+                    if selectedPiece == None:
+                        # If no piece is selected
+                        for pieceCoord, pixedCoord in circlePos.items():
+                            # Use mouse pos to find piece clicked
+                            if sqrt((x - pixedCoord[0]) ** 2 + (y - pixedCoord[1]) ** 2) < CIRCLE_RADIUS:
+                                if board[pieceCoord[0]][pieceCoord[1]] != 0:
+                                    selectedPiece = pieceCoord
+                                    print(selectedPiece, "selected")
+                                    #TODO - highlight selected piece
+                                else:
+                                    print("No piece selected")
+                    else:
+                        # If piece is selected
+                        for pieceCoord, pixedCoord in circlePos.items():
+                            if sqrt((x - pixedCoord[0]) ** 2 + (y - pixedCoord[1]) ** 2) < CIRCLE_RADIUS:
+
+                                # Move piece
+                                try:
+                                    doMove(selectedPiece, pieceCoord, board, board[selectedPiece[0]][selectedPiece[1]])
+                                
+                                    # Reset selected piece
+                                    selectedPiece = None
+
+                                    # Update board
+                                    drawBoard(board, display_surface)
+                                    pg.display.update()
+                                except Exception as e:
+                                    if e.args[0] == "Error - Invalid move, same position":
+                                        print(selectedPiece, "deselected")
+                                        selectedPiece = None
+                                    else:
+                                        print(e.args[0])
