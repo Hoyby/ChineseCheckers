@@ -44,15 +44,12 @@ while True:
                             if sqrt((x - pixedCoord[0]) ** 2 + (y - pixedCoord[1]) ** 2) < CIRCLE_RADIUS:
 
                                 # Move piece
-                                try:
-                                    board.doMove(pieceCoord)
+                                board.movePiece(pieceCoord)
                                     
-                                except Exception as e:
-                                    if e.args[0] == "Error - Invalid move, same position":
-                                        print(board.selection.coord, "deselected")
-                                        board.deselectPiece()
-                                    else:
-                                        print(e.args[0])
+                                # except Exception as e:
+                                #     if e.args[0] == "Error - Invalid move, same position":
+                                #         print(board.selection.coord, "deselected")
+                                #         board.deselectPiece()
 
             drawBoard(board.array, display_surface)
             pg.display.update()

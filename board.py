@@ -8,7 +8,7 @@ class Board:
             self.coord = None
             self.value = None
             self.selected = False
-        
+
         def select(self, coord):
             if not self.selected:
                 self.coord = coord
@@ -17,8 +17,9 @@ class Board:
                 self.selected = True
                 return True
             else:
-                raise Exception("Error - A piece already selected at ", self.coord)
-        
+                raise Exception(
+                    "Error - A piece already selected at ", self.coord)
+
         def deselect(self):
             if self.selected:
                 self.board.array[self.coord[0]][self.coord[1]] = self.value
@@ -28,7 +29,7 @@ class Board:
                 return True
             else:
                 raise Exception("Error - No piece selected")
-        
+
         def postMove(self):
             if self.selected:
                 self.board.array[self.coord[0]][self.coord[1]] = 0
@@ -192,33 +193,101 @@ class Board:
         self.array[12][14] = 0
         self.array[12][16] = 0
 
-    def checkValidMove(self, fromCoord, toCoord):
-        if fromCoord[0] == toCoord[0] and fromCoord[1] == toCoord[1]:
-            raise Exception("Error - Invalid move, same position")
-        if self.array[fromCoord[0]][fromCoord[1]] == 0:
-            raise Exception("Error - Invalid move, no piece selected")
-        if self.array[toCoord[0]][toCoord[1]] != 0:
-            raise Exception("Error - Invalid move, destination occupied")
-        if abs(fromCoord[0] - toCoord[0]) > 1 or abs(fromCoord[1] - toCoord[1]) > 2:
-            raise Exception("Error - Invalid move, too far")
-        if abs(fromCoord[0] - toCoord[0]) == 2 and abs(fromCoord[1] - toCoord[1]) != 0:
-            raise Exception("Error - Invalid move, not diagonal")
-        return True
+    def findLegalMoves(self, piece, frontier=[], visited=[], firstCall=True):
+        if piece not in visited:
+            adjacent = dict()
+            adjacent["right"] = (piece[0], piece[1] + 2)  # right
+            adjacent["left"] = (piece[0], piece[1] - 2)  # left
+            adjacent["upLeft"] = (piece[0] - 1, piece[1] - 1)  # up left
+            adjacent["upRight"] = (piece[0] - 1, piece[1] + 1)  # up right
+            adjacent["downLeft"] = (piece[0] + 1, piece[1] - 1)  # down left
+            adjacent["downRight"] = (piece[0] + 1, piece[1] + 1)  # down right
 
-    def doMove(self, toCoord):
-        try: 
-            self.checkValidMove(self.selection.coord, toCoord)
+            for key, val in adjacent.items():
+                try:
+                    self.array[val]
+                except IndexError:
+                    continue
+
+                if firstCall:
+                    if self.array[val] == 0:
+                        print(val)
+                        visited.append(val)
+
+                if self.array[val] != 0 and self.array[val] != -1:
+                    match(key):
+                        case "right":
+                            newLocation = val[0], val[1] + 2
+                            try:
+                                if self.array[newLocation] == 0:
+                                    frontier.append(newLocation)
+                            except Exception as e:
+                                continue
+
+                        case "left":
+                            newLocation = val[0], val[1] - 2
+                            try:
+                                if self.array[newLocation] == 0:
+                                    frontier.append(newLocation)
+                            except Exception as e:
+                                continue
+
+                        case "upLeft":
+                            newLocation = val[0] - 1, val[1] - 1
+                            try:
+                                if self.array[newLocation] == 0:
+                                    frontier.append(newLocation)
+                            except Exception as e:
+                                continue
+
+                        case "upRight":
+                            newLocation = val[0] - 1, val[1] + 1
+                            try:
+                                if self.array[newLocation] == 0:
+                                    frontier.append(newLocation)
+                            except Exception as e:
+                                continue
+
+                        case "downLeft":
+                            newLocation = val[0] + 1, val[1] - 1
+                            try:
+                                if self.array[newLocation] == 0:
+                                    frontier.append(newLocation)
+                            except Exception as e:
+                                continue
+
+                        case "downRight":
+                            newLocation = val[0] + 1, val[1] + 1
+                            try:
+                                if self.array[newLocation] == 0:
+                                    frontier.append(newLocation)
+                            except Exception as e:
+                                continue
+
+                # elif firstCall and self.array[val] != -1:
+                #     legalMoves.append(val)
+
+            visited.append(piece)
+        if len(frontier) > 0:
+            piece = frontier.pop(0)
+            if not piece in visited:
+                self.findLegalMoves(piece, frontier, visited, firstCall=False)
+
+        return visited
+
+    def movePiece(self, toCoord):
+        if toCoord in self.findLegalMoves(self.selection.coord, frontier=[], visited=[], firstCall=True):
             self.array[toCoord] = self.selection.value
             self.selection.postMove()
             return True
-        except Exception as e:
-            raise e
+        else:
+            return False
 
     def selectPiece(self, coord):
         if self.array[coord[0]][coord[1]] != 0:
             self.selection.select(coord)
         else:
             raise Exception("Error - No piece selected")
-    
+
     def deselectPiece(self):
         self.selection.deselect()
