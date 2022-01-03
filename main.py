@@ -36,20 +36,27 @@ while True:
                                 if board.array[pieceCoord[0]][pieceCoord[1]] != 0:
                                     board.selectPiece(pieceCoord)
                                     print(board.selection.coord, "selected")
+                                    break
                                 else:
                                     print("No piece selected")
+                                    break
                     else:
                         # If piece is selected
                         for pieceCoord, pixedCoord in circlePos.items():
                             if sqrt((x - pixedCoord[0]) ** 2 + (y - pixedCoord[1]) ** 2) < CIRCLE_RADIUS:
-
-                                # Move piece
-                                board.movePiece(pieceCoord)
-                                    
-                                # except Exception as e:
-                                #     if e.args[0] == "Error - Invalid move, same position":
-                                #         print(board.selection.coord, "deselected")
-                                #         board.deselectPiece()
+                                if pieceCoord != board.selection.coord:
+                                    # Attempt move
+                                    if board.movePiece(pieceCoord):
+                                        print(board.selection.coord, " moved to", pieceCoord)
+                                        break
+                                    else:
+                                        print("invalid move:", board.selection.coord, "deselected")
+                                        board.deselectPiece()
+                                        break
+                                else:
+                                    print(board.selection.coord, "deselected")
+                                    board.deselectPiece()
+                                    break
 
             drawBoard(board.array, display_surface)
             pg.display.update()

@@ -6,6 +6,7 @@ color = {
     "bg": (242, 213, 171),
     "empty": (213, 192, 155),
     "selected": (100, 100, 100),
+    "availableMove": (100, 100, 100),
     "player1": (0, 0, 0),  # black
     "player2": (255, 255, 255),  # white
     "player3": (255, 0, 0),  # red
@@ -103,3 +104,6 @@ def color_circle(boardValue, surface, xCoord, yCoord):
         case 10:
             pg.draw.circle(surface, color["selected"],
                         (xCoord, yCoord), CIRCLE_RADIUS, 0)
+        case 11:
+            pg.draw.circle(surface, color["availableMove"],
+                        (xCoord, yCoord), CIRCLE_RADIUS, 1)
