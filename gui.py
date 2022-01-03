@@ -1,6 +1,5 @@
 import pygame as pg
 
-
 # color dictionary, represents white, red and blue
 color = {
     "bg": (242, 213, 171),
@@ -14,7 +13,6 @@ color = {
     "player5": (0, 200, 0),  # green
     "player6": (243, 243, 14)  # yellow
 }
-
 
 WIDTH = 600
 HEIGHT = 800
@@ -38,7 +36,6 @@ def initBoard():
     pg.display.set_caption('Chinese Checkers')
     screen = pg.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
     return screen
-
 
 def drawBoard(board, display_surface):
 
