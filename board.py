@@ -49,7 +49,7 @@ class Board:
             else:
                 raise Exception("Error - No piece selected")
 
-    def __init__(self, players = 2):
+    def __init__(self, players):
 
         self.selection = self.Selection(self)
 
@@ -87,9 +87,6 @@ class Board:
                             self.array[position[0]][position[1]] = playerPositions[0]
                         case _:
                             print("Error - Invalid number of players")
-
-
-
 
     def findNeighbors(self, piece):
         adjacent = dict()
