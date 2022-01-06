@@ -5,10 +5,16 @@ from gui import *
 
 class Game():
 
-    def __init__(self, players = 2):
-        self.turn = 0
-        self.board = Board(players)
+    def __init__(self, noOfPlayers = 2):
+        self.board = Board(noOfPlayers)
         self.displaySurface = initBoard()
+
+        self.playerList = list(self.board.playersSets.keys())
+
+        self.turn = 0
+        
+        # iterate the dictionary to get the first player
+        self.currentPlayer = self.playerList[0]
 
     def updateBoard(self):
         drawBoard(self.board.array, self.displaySurface)
@@ -21,10 +27,21 @@ class Game():
             if sqrt((x - pixedCoord[0]) ** 2 + (y - pixedCoord[1]) ** 2) < CIRCLE_RADIUS:
                 if self.board.array[pieceCoord] > 0:
                     return pieceCoord
-        return None
+                else:
+                    raise Exception("Empty space clicked")
+        raise Exception("No piece found at mouse position")
+    
+    def getCurrentPlayer(self):
+        return self.playerList[self.turn % len(self.playerList)]
+    
+    def getCurrentPlayerColor(self):
+        return self.board.colorMapping[self.getCurrentPlayer()]
+
 
     def play(self):
         self.updateBoard()
+        print(self.getCurrentPlayerColor(), "goes first.")
+
 
         while True:
 
@@ -41,42 +58,27 @@ class Game():
                     
                     if event.button == 1: # left click
 
-                        # get mouse position
-                        x = pg.mouse.get_pos()[0]
-                        y = pg.mouse.get_pos()[1]
+                        try:
+                            piece = self.getClickedPiece() # get piece clicked
+                        except Exception as e:
+                            continue
 
                         if self.board.selection.selected == False: # if no piece is selected
-                            piece = self.getClickedPiece()
-                            if piece and self.board.array[piece[0]][piece[1]] != 0:
+                            if self.board.array[piece] == self.getCurrentPlayer(): # if piece belongs to player
                                 self.board.selection.select(piece)
-                                print(self.board.selection.coord, "selected")
+                            else:
+                                print(self.getCurrentPlayerColor(), "is up to move.")
+                        else:
+
+                            if self.board.movePiece(piece): # if move is successful
+                                self.turn += 1
+                                print("Player", self.getCurrentPlayerColor(), "is playing.")
                                 break
                             else:
-                                print("No piece selected")
+                                self.board.selection.deselect()
                                 break
-                        else:
-                            # if piece is selected
-                            for piece, pixedCoord in circlePos.items():
-                                if sqrt((x - pixedCoord[0]) ** 2 + (y - pixedCoord[1]) ** 2) < CIRCLE_RADIUS:
-                                    if piece != self.board.selection.coord:
-                                        # attempt move
-                                        if self.board.movePiece(piece):
-                                            print(self.board.selection.coord, " moved to", piece)
-                                            break
-                                        else:
-                                            print("invalid move:", self.board.selection.coord, "deselected")
-                                            self.board.selection.deselect()
-                                            break
-                                    else:
-                                        print(self.board.selection.coord, "deselected")
-                                        self.board.selection.deselect()
-                                        break
 
                 self.updateBoard()
-
-    def turn(self):
-        player = self.getPlayer()
-        self.turn += 1
 
     def end(self):
         pass

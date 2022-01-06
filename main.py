@@ -3,7 +3,7 @@ from math import sqrt
 from game import *
 
 def runGame():
-    game = Game()
+    game = Game(noOfPlayers=3)
     game.play()
 
 if __name__ == "__main__":
