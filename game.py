@@ -53,6 +53,16 @@ class Game():
                     pg.quit()
                     break
 
+                # event - key pressed
+                if event.type == pg.KEYDOWN:
+                    if event.key == ord("r"):
+                        self.turn = 0
+                        self.board.reset()
+                        print("\nGame restarted.")
+                        print("---------------------------")
+                        print(self.getCurrentPlayerColor(), "goes first.")
+
+
                 # event - mousebutton pressed
                 if event.type == pg.MOUSEBUTTONDOWN:
                     

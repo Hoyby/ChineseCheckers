@@ -168,3 +168,7 @@ class Board:
             return True
         else:
             return False
+
+    def reset(self):
+        self.__init__(len(self.playersSets))
+        self.selection.__init__(self)
