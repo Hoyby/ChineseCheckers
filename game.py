@@ -9,7 +9,7 @@ class Game():
         self.board = Board(noOfPlayers)
         self.displaySurface = initBoard()
 
-        self.playerList = list(self.board.playersSets.keys())
+        self.playerList = list(self.board.playerSets.keys())
 
         self.turn = 0
         
@@ -25,7 +25,7 @@ class Game():
         y = pg.mouse.get_pos()[1]
         for pieceCoord, pixedCoord in circlePos.items(): # use mouse pos to find piece clicked
             if sqrt((x - pixedCoord[0]) ** 2 + (y - pixedCoord[1]) ** 2) < CIRCLE_RADIUS:
-                if self.board.array[pieceCoord] > 0:
+                if self.board.array[pieceCoord] >= 0:
                     return pieceCoord
                 else:
                     raise Exception("Empty space clicked")
@@ -57,11 +57,17 @@ class Game():
                 if event.type == pg.KEYDOWN:
                     if event.key == ord("r"):
                         self.turn = 0
-                        self.board.reset()
+                        self.board.resetBoard()
                         print("\nGame restarted.")
                         print("---------------------------")
                         print(self.getCurrentPlayerColor(), "goes first.")
 
+                    elif event.key == ord("h"):
+                        self.board.toggleAssist()
+                        # pieceMoves = self.board.findAllLegalMoves(self.currentPlayer)
+                        # for clickedPiece in pieceMoves:
+                        #     for move in clickedPiece:
+                        #         self.board.array[move] = 11
 
                 # event - mousebutton pressed
                 if event.type == pg.MOUSEBUTTONDOWN:
@@ -69,18 +75,20 @@ class Game():
                     if event.button == 1: # left click
 
                         try:
-                            piece = self.getClickedPiece() # get piece clicked
+                            clickedPiece = self.getClickedPiece() # get piece clicked
                         except Exception as e:
                             continue
 
                         if self.board.selection.selected == False: # if no piece is selected
-                            if self.board.array[piece] == self.getCurrentPlayer(): # if piece belongs to player
-                                self.board.selection.select(piece)
+                            if self.board.array[clickedPiece] == self.getCurrentPlayer(): # if piece belongs to player
+                                self.board.selection.select(clickedPiece)
+                            elif self.board.array[clickedPiece] == 0:
+                                continue
                             else:
                                 print(self.getCurrentPlayerColor(), "is up to move.")
                         else:
 
-                            if self.board.movePiece(piece): # if move is successful
+                            if self.board.movePiece(clickedPiece): # if move is successful
                                 self.turn += 1
                                 print("Player", self.getCurrentPlayerColor(), "is playing.")
                                 break

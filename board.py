@@ -5,7 +5,7 @@ class Board:
         def __init__(self, board):
             self.board = board
             self.coord = None
-            self.legalMoves = None
+            self.highlightLegalMoves = None
             self.value = None
             self.selected = False
 
@@ -16,9 +16,11 @@ class Board:
                 self.coord = coord
                 self.value = self.board.array[coord] # save value of piece
                 self.board.array[coord] = 10 # highlight selected piece
-                self.legalMoves = self.board.findLegalMoves(coord, validMoves = []) # find legal moves
-                for move in self.legalMoves:
-                    self.board.array[move] = 11 # highlight legal moves
+                self.highlightLegalMoves = self.board.findLegalMoves(coord, validMoves = []) # find legal moves
+                if self.board.highlightAssist:
+                    for move in self.highlightLegalMoves:
+                        if move not in self.board.playerSets.values():
+                            self.board.array[move] = 11 # highlight legal moves
                 self.selected = True
             else:
                 raise Exception(
@@ -27,23 +29,22 @@ class Board:
         def deselect(self):
             if self.selected:
                 self.board.array[self.coord] = self.value # restore value of piece
-                for move in self.legalMoves:
+                for move in self.highlightLegalMoves:
                     self.board.array[move] = 0 # remove highlighted legal moves
                 self.coord = None
-                self.legalMoves = None # reset legal moves
+                self.highlightLegalMoves = None # reset legal moves
                 self.value = None
                 self.selected = False
             else:
                 raise Exception("Error - No piece selected")
-
-        def handleMove(self, coord):
+            
+        def resetSelectionAfterMove(self, moveTo):
             if self.selected:
-                self.board.array[self.coord] = 0
-                for move in self.legalMoves:
-                    self.board.array[move] = 0
-                self.board.array[coord] = self.value
+                for move in self.highlightLegalMoves:
+                    if move != moveTo:
+                        self.board.array[move] = 0
                 self.coord = None
-                self.legalMoves = None
+                self.highlightLegalMoves = None
                 self.value = None
                 self.selected = False
             else:
@@ -52,11 +53,12 @@ class Board:
     def __init__(self, players):
 
         self.selection = self.Selection(self)
+        self.highlightAssist = False
 
         self.array = np.zeros((17, 25), dtype=int)
         self.array[:][:] = -1
 
-        self.playersSets = dict()
+        self.playerSets = dict()
 
         self.colorMapping = {
             1: "black",
@@ -68,49 +70,66 @@ class Board:
         }
 
         initBoard = dict()
-        initBoard[0] = [[4, 8], [4, 10], [4, 12], [4, 14], [4, 16], [5, 7], [5, 9], [5, 11], [5, 13], [5, 15], [5, 17], [6, 6], [6, 8], [6, 10], [6, 12], [6, 14], [6, 16], [6, 18], [7, 5], [7, 7], [7, 9], [7, 11], [7, 13], [7, 15], [7, 17], [7, 19], [7, 5], [7, 7], [7, 9], [7, 11], [7, 13], [7, 15], [7, 17], [7, 19], [8, 4], [8, 6], [8, 8], [8, 10], [8, 12], [8, 14], [8, 16], [8, 18], [8, 20], [9, 5], [9, 7], [9, 9], [9, 11], [9, 13], [9, 15], [9, 17], [9, 19], [10, 6], [10, 8], [10, 10], [10, 12], [10, 14], [10, 16], [10, 18], [11, 7], [11, 9], [11, 11], [11, 13], [11, 15], [11, 17], [12, 8], [12, 10], [12, 12], [12, 14], [12, 16]]
-        initBoard[1] = [[0, 12], [1, 11], [1, 13], [2, 10], [2, 12], [2, 14], [3, 9], [3, 11], [3, 13], [3, 15]]
-        initBoard[2] = [[13, 9], [13, 11], [13, 13], [13, 15], [14, 10], [14, 12], [14, 14], [15, 11], [15, 13], [16, 12]]
-        initBoard[3] = [[9, 3], [10, 2], [10, 4], [11, 1], [11, 3], [11, 5], [12, 0], [12, 2], [12, 4], [12, 6]]
-        initBoard[4] = [[4, 18], [4, 20], [4, 22], [4, 24], [5, 19], [5, 21], [5, 23], [6, 20], [6, 22], [7, 21]]
-        initBoard[5] = [[9, 21], [10, 20], [10, 22], [11, 19], [11, 21], [11, 23], [12, 18], [12, 20], [12, 22], [12, 24]]
-        initBoard[6] = [[4, 0], [4, 2], [4, 4], [4, 6], [5, 1], [5, 3], [5, 5], [6, 2], [6, 4], [7, 3]]
+        initBoard[0] = [(4, 8), (4, 10), (4, 12), (4, 14), (4, 16), (5, 7), (5, 9), (5, 11), (5, 13), (5, 15), (5, 17), (6, 6), (6, 8), (6, 10), (6, 12), (6, 14), (6, 16), (6, 18), (7, 5), (7, 7), (7, 9), (7, 11), (7, 13), (7, 15), (7, 17), (7, 19), (7, 5), (7, 7), (7, 9), (7, 11), (7, 13), (7, 15), (7, 17), (7, 19), (8, 4), (8, 6), (8, 8), (8, 10), (8, 12), (8, 14), (8, 16), (8, 18), (8, 20), (9, 5), (9, 7), (9, 9), (9, 11), (9, 13), (9, 15), (9, 17), (9, 19), (10, 6), (10, 8), (10, 10), (10, 12), (10, 14), (10, 16), (10, 18), (11, 7), (11, 9), (11, 11), (11, 13), (11, 15), (11, 17), (12, 8), (12, 10), (12, 12), (12, 14), (12, 16)]
+        initBoard[1] = [(0, 12), (1, 11), (1, 13), (2, 10), (2, 12), (2, 14), (3, 9), (3, 11), (3, 13), (3, 15)]
+        initBoard[2] = [(13, 9), (13, 11), (13, 13), (13, 15), (14, 10), (14, 12), (14, 14), (15, 11), (15, 13), (16, 12)]
+        initBoard[3] = [(9, 3), (10, 2), (10, 4), (11, 1), (11, 3), (11, 5), (12, 0), (12, 2), (12, 4), (12, 6)]
+        initBoard[4] = [(4, 18), (4, 20), (4, 22), (4, 24), (5, 19), (5, 21), (5, 23), (6, 20), (6, 22), (7, 21)]
+        initBoard[5] = [(9, 21), (10, 20), (10, 22), (11, 19), (11, 21), (11, 23), (12, 18), (12, 20), (12, 22), (12, 24)]
+        initBoard[6] = [(4, 0), (4, 2), (4, 4), (4, 6), (5, 1), (5, 3), (5, 5), (6, 2), (6, 4), (7, 3)]
 
         for key, val in initBoard.items():
             match(players):
                 case 2:
                     if key <= 2 and key > 0:
-                        self.playersSets[key] = val
+                        self.playerSets[key] = val
                         for piece in val:
-                            self.array[piece[0], piece[1]] = key
+                            self.array[piece] = key
                     else:
                         for piece in val:
-                            self.array[piece[0], piece[1]] = 0
+                            self.array[piece] = 0
                 case 3:
                     if key % 2 == 0 and key > 0:
-                        self.playersSets[key] = val
+                        self.playerSets[key] = val
                         for piece in val:
-                            self.array[piece[0], piece[1]] = key
+                            self.array[piece] = key
                     else:
                         for piece in val:
-                            self.array[piece[0], piece[1]] = 0
+                            self.array[piece] = 0
                 case 4:
                     if key <= 4 and key > 0:
-                        self.playersSets[key] = val
+                        self.playerSets[key] = val
                         for piece in val:
-                            self.array[piece[0], piece[1]] = key
+                            self.array[piece] = key
                     else:
                         for piece in val:
-                            self.array[piece[0], piece[1]] = 0
+                            self.array[piece] = 0
                 case 6:
                     if key > 0:
-                        self.playersSets[key] = val
+                        self.playerSets[key] = val
                     
                     for piece in val:
-                        self.array[piece[0], piece[1]] = key
+                        self.array[piece] = key
                 case _:
                     print("Error - Invalid number of players")
 
+    def toggleAssist(self):
+        if not self.highlightAssist:
+            self.highlightAssist = True
+            if self.selection.selected:
+                for move in self.selection.highlightLegalMoves:
+                    if move not in self.playerSets.values():
+                        self.array[move] = 11 # highlight legal moves
+        else:
+            self.highlightAssist = False
+            if self.selection.selected:
+                for move in self.selection.highlightLegalMoves:
+                    if move not in self.playerSets.values():
+                        self.array[move] = 0 # highlight legal moves
+
+
+
+    
     def findNeighbors(self, piece):
         adjacent = dict()
         adjacent["right"] = (piece[0], piece[1] + 2)  # right
@@ -138,7 +157,7 @@ class Board:
                     validMoves.append(neighborPosition)
 
                 # if neighbor is occupied, check if jump is possible
-                if self.array[neighborPosition] > 0:
+                if 10 > self.array[neighborPosition] > 0 :
                     newLocation = (neighborPosition[0] + (neighborPosition[0] - piece[0]), neighborPosition[1] + (neighborPosition[1] - piece[1]))
 
                     # check if newlocation is out of bounds or is empty
@@ -162,13 +181,32 @@ class Board:
 
         return validMoves
 
+    def findAllLegalMoves(self, player):
+        allMoves = []
+        for piece in self.playersSets[player]:
+            allMoves.append(self.findLegalMoves(piece, validMoves=[], depth=0))
+        return allMoves
+
     def movePiece(self, moveTo):
-        if moveTo in self.selection.legalMoves:
-            self.selection.handleMove(moveTo)
+        if moveTo in self.selection.highlightLegalMoves:
+            
+            
+            # move piece
+            self.array[self.selection.coord] = 0
+            self.array[moveTo] = self.selection.value
+            
+            # update set
+            listOfPlayerPos = self.playerSets[self.selection.value]
+            indexToUpdate = listOfPlayerPos.index(self.selection.coord)
+            listOfPlayerPos[indexToUpdate] = moveTo
+
+            # reset selection
+            self.selection.resetSelectionAfterMove(moveTo)
+
             return True
         else:
             return False
 
-    def reset(self):
+    def resetBoard(self):
         self.__init__(len(self.playersSets))
         self.selection.__init__(self)
