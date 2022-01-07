@@ -120,12 +120,14 @@ class Board:
                 for move in self.selection.highlightLegalMoves:
                     if move not in self.playerSets.values():
                         self.array[move] = 11 # highlight legal moves
+            return True
         else:
             self.highlightAssist = False
             if self.selection.selected:
                 for move in self.selection.highlightLegalMoves:
                     if move not in self.playerSets.values():
                         self.array[move] = 0 # highlight legal moves
+            return False
 
 
 

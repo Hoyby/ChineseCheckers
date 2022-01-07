@@ -63,7 +63,10 @@ class Game():
                         print(self.getCurrentPlayerColor(), "goes first.")
 
                     elif event.key == ord("h"):
-                        self.board.toggleAssist()
+                        if self.board.toggleAssist():
+                            print("Move assist activated")
+                        else:
+                            print("Move assist disabled")
                         # pieceMoves = self.board.findAllLegalMoves(self.currentPlayer)
                         # for clickedPiece in pieceMoves:
                         #     for move in clickedPiece:
